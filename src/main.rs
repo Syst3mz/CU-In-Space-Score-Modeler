@@ -104,10 +104,17 @@ fn main() {
         }
     }
     println!("Done!");
+    let mut output = String::new();
 
     for (index, (setup, score)) in best.iter().enumerate() {
-        println!("#{}: {} @ {}", index + 1, setup, score)
+        let text = format!("#{}: {} @ {}", index + 1, setup, score);
+        println!("{}", &text);
+        output += &text;
+        output += "\n"
     }
+
+    std::fs::write(config.output_file, output.as_bytes())
+        .expect("Unable to write the output file. Running from command line will let you view the results.")
 }
 
 #[cfg(test)]

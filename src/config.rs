@@ -18,7 +18,10 @@ pub struct Config {
     pub gravity: f32,
 
     #[serde(default)]
-    pub max_tracked_solutions: usize
+    pub max_tracked_solutions: usize,
+    
+    #[serde(default)]
+    pub output_file: String
 }
 
 impl Default for Config {
@@ -30,6 +33,8 @@ impl Default for Config {
             max_golf_balls: 1000,
             gravity: 9.81,
             max_tracked_solutions: 50,
+
+            output_file: String::from("output.txt"),
         }
     }
 }
