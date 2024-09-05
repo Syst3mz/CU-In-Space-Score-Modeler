@@ -1,12 +1,13 @@
 mod scoring_criteria;
 mod config;
 mod simulation;
+mod impulse_iterator;
 
 use std::io::Write;
 use std::sync::LazyLock;
-use crate::scoring_criteria::ScoringCriteria;
 use crate::config::Config;
-use crate::simulation::simulate_rocket_apogee;
+use crate::scoring_criteria::ScoringCriteria;
+use crate::simulation::compute_stage_apogee;
 
 static CONFIG: LazyLock<Config> = LazyLock::new(|| get_config());
 
@@ -36,21 +37,33 @@ fn get_config() -> Config {
         config
     })
 }
+fn compute_multi_stage_apogee(stage_masses: &Vec<f32>, stage_impulses: &Vec<u16>, golf_balls_mass: f32) -> f32 {
+    let mut total_apogee = 0.0;
+
+    for stage_index in 0..stage_impulses.len() {
+        let mass = stage_masses[stage_index] + golf_balls_mass;
+        total_apogee += compute_stage_apogee(mass, stage_impulses[stage_index] as f32)
+    }
+
+    total_apogee
+}
 
 fn main() {
-    let mut best = vec![];
+    // best solutions found so far.
+    let mut best: Vec<(ScoringCriteria, f32)> = vec![];
 
-    print!("Sweeping...");
-    // test every possible combination of impulse and golf balls.
-    for max_impulse in 0..CONFIG.max_impulse_ns {
-        for golf_balls in 0..CONFIG.max_golf_balls {
-            let mass = (CONFIG.golf_ball_mass_kg * golf_balls as f32) + CONFIG.dry_mass_kg;
-            let impulse = max_impulse as f32;
+    // The mass of the current stage and all stages above it.
+    let stage_masses = CONFIG.stages.stage_masses();
 
+    // test every possible combination of staged impulse and golf balls.
+    for golf_balls in CONFIG.min_golf_balls..CONFIG.max_golf_balls {
+        let golf_ball_mass = golf_balls as f32 * CONFIG.golf_ball_mass_kg;
+
+        for stage_impulses in impulse_iterator::new(stage_masses.len(), CONFIG.max_total_impulse) {
             let setup = ScoringCriteria::new(
-                simulate_rocket_apogee(mass, impulse),
+                compute_multi_stage_apogee(&stage_masses, &stage_impulses, golf_ball_mass),
                 golf_balls,
-                impulse,
+                stage_impulses,
             );
 
             // if the score is invalid, just move on.
@@ -59,16 +72,34 @@ fn main() {
             }
 
             let score = setup.score();
-            best.push((setup, score));
 
-            if best.len() > CONFIG.max_tracked_solutions {
-                // Take out the worst tracked solution.
-                best.sort_by(|(_, a), (_,b)| b.total_cmp(a));
-                best.pop();
+
+            let needs_addition = if let Some((_, worst_saved)) = best.last() {
+                score > *worst_saved
+            } else {
+                true
+            };
+
+
+            if needs_addition {
+                // Linear scan down the best options found so far, and replace the worst
+                if best.len() == CONFIG.max_tracked_solutions {
+                    for best_score_index in 0..best.len() {
+                        if score > best[best_score_index].1 {
+                            best.insert(best_score_index, (setup, score));
+
+                            // drop off the worst after replacement
+                            best.pop();
+                            break;
+                        }
+                    }
+                } else {
+                    best.push((setup, score))
+                }
             }
         }
+        println!("Finished {} / {}", golf_balls + 1, CONFIG.max_golf_balls)
     }
-    println!("Done!");
     let mut output = String::new();
 
     for (index, (setup, score)) in best.iter().enumerate() {

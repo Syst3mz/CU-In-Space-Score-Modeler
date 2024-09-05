@@ -29,7 +29,7 @@ fn compute_apogee(initial_velocity: f32, time_of_apogee: f32, gravity: f32) -> f
     initial_velocity * time_of_apogee + (0.5 * -gravity * time_of_apogee.powi(2))
 }
 
-pub fn simulate_rocket_apogee(mass: f32, impulse: f32) -> f32 {
+pub fn compute_stage_apogee(mass: f32, impulse: f32) -> f32 {
     let initial_velocity = compute_initial_velocity(mass, impulse);
     let time_of_apogee = compute_time_of_apogee(initial_velocity, CONFIG.gravity_ms);
     compute_apogee(initial_velocity, time_of_apogee, CONFIG.gravity_ms)
@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn rocket_apogee() {
-        let height = simulate_rocket_apogee(2.0, 40.0);
+        let height = compute_stage_apogee(2.0, 40.0);
         assert_eq!(height, 20.38736)
     }
 }
