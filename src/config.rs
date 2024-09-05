@@ -1,12 +1,59 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
+pub enum StageAdditionFunction {
+    None,
+    Addition
+}
+
+impl Default for StageAdditionFunction {
+    fn default() -> Self {
+        StageAdditionFunction::Addition
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Stages {
+    #[serde(default)]
+    stage_addition_function: StageAdditionFunction,
+    #[serde(default)]
+    stages_dry_mass: Vec<f32>
+}
+
+impl Stages {
+    pub fn stage_masses(&self) -> Vec<f32> {
+        match self.stage_addition_function {
+            StageAdditionFunction::None => self.stages_dry_mass.clone(),
+            StageAdditionFunction::Addition => {
+                let mut sum = 0.0;
+                let mut masses = vec![0_f32; self.stages_dry_mass.len()];
+
+                for stage_index in (0..self.stages_dry_mass.len()).rev() {
+                    sum += self.stages_dry_mass[stage_index];
+                    masses[stage_index] = sum
+                }
+
+                masses
+            }
+        }
+    }
+}
+impl Default for Stages {
+    fn default() -> Self {
+        Self {
+            stage_addition_function: StageAdditionFunction::default(),
+            stages_dry_mass: vec![4.0]
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
     #[serde(default)]
     pub golf_ball_mass_kg: f32,
 
     #[serde(default)]
-    pub dry_mass_kg: f32,
+    pub stages: Stages,
 
     #[serde(default)]
     pub max_impulse_ns: u16,
@@ -27,14 +74,17 @@ pub struct Config {
     pub max_tracked_solutions: usize,
     
     #[serde(default)]
-    pub output_file: String
+    pub output_file: String,
+
+    #[serde(default)]
+    pub min_stage_impulse: u16
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
             golf_ball_mass_kg: 0.04592623,
-            dry_mass_kg: 4.0,
+            stages: Stages::default(),
             max_impulse_ns: 5120,
             max_golf_balls: 1000,
             min_altitude_m: 2743.2,
@@ -42,6 +92,7 @@ impl Default for Config {
             gravity_ms: 9.81,
             max_tracked_solutions: 50,
             output_file: String::from("output.txt"),
+            min_stage_impulse: 0,
         }
     }
 }
