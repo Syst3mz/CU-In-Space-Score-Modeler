@@ -18,12 +18,12 @@ The number on the left, is which solution number it is. The middle is the partic
 number following the `@` is the score based on the scoring function.
 
 # Configuration
-Configuration is handled through a file called config.json, which must be next to the program in the file system. 
-If the program can't find a config.json, one will be created with the following defaults.
+Configuration is handled through a file called `config.json`, which must be next to the program in the file system. 
+If the program can't find a `config.json`, one will be created with the following defaults.
 - `golf_ball_mass_kg`: `0.04592623`
   - Mass of a golf balls in kilograms. This value is gathered from [here](https://en.wikipedia.org/wiki/Golf_ball#:~:text=A%20golf%20ball%20is%20a,%2C%20distance%2C%20and%20symmetry%20limits.).
 - `dry_mass_kg`: `4.0`
-  - The mass of everything on the rocket that isn't golf balls.
+  - The mass of everything on the rocket that isn't golf balls or motors.
 - `max_impulse_ns`: `5120`
   - The maximum amount of impulse for the rocket. MUST BE AN INTEGER.
 - `max_golf_balls`: `1000`
