@@ -77,19 +77,19 @@ fn main() {
 
     print!("Sweeping...");
     // test every possible combination of impulse and golf balls.
-    for max_impulse in 0..config.max_impulse {
+    for max_impulse in 0..config.max_impulse_ns {
         for golf_balls in 0..config.max_golf_balls {
-            let mass = (config.golf_ball_mass_kg * golf_balls as f32) + config.dead_mass_kilo_grams;
+            let mass = (config.golf_ball_mass_kg * golf_balls as f32) + config.dry_mass_kg;
             let impulse = max_impulse as f32;
 
             let setup = ScoringCriteria::new(
-                simulate_rocket_apogee(mass, impulse, config.gravity),
+                simulate_rocket_apogee(mass, impulse, config.gravity_ms),
                 golf_balls,
                 impulse,
             );
 
             // if the score is invalid, just move on.
-            if setup.invalid() {
+            if setup.invalid(&config) {
                 continue;
             }
 

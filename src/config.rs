@@ -6,16 +6,22 @@ pub struct Config {
     pub golf_ball_mass_kg: f32,
 
     #[serde(default)]
-    pub dead_mass_kilo_grams: f32,
+    pub dry_mass_kg: f32,
 
     #[serde(default)]
-    pub max_impulse: u16,
+    pub max_impulse_ns: u16,
 
     #[serde(default)]
     pub max_golf_balls: u16,
 
     #[serde(default)]
-    pub gravity: f32,
+    pub min_altitude_m: f32,
+
+    #[serde(default)]
+    pub max_altitude_m: f32,
+
+    #[serde(default)]
+    pub gravity_ms: f32,
 
     #[serde(default)]
     pub max_tracked_solutions: usize,
@@ -28,12 +34,13 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             golf_ball_mass_kg: 0.04592623,
-            dead_mass_kilo_grams: 4.0,
-            max_impulse: 5120,
+            dry_mass_kg: 4.0,
+            max_impulse_ns: 5120,
             max_golf_balls: 1000,
-            gravity: 9.81,
+            min_altitude_m: 2743.2,
+            max_altitude_m: 12192.0,
+            gravity_ms: 9.81,
             max_tracked_solutions: 50,
-
             output_file: String::from("output.txt"),
         }
     }
