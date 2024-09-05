@@ -38,25 +38,28 @@ fn get_config() -> Config {
     })
 }
 fn compute_multi_stage_apogee(stage_masses: &Vec<f32>, stage_impulses: &Vec<u16>, golf_balls_mass: f32) -> f32 {
-    let mut apogee = 0.0;
+    let mut total_apogee = 0.0;
 
     for stage_index in 0..stage_impulses.len() {
         let mass = stage_masses[stage_index] + golf_balls_mass;
-        apogee += compute_stage_apogee(mass, stage_impulses[stage_index] as f32)
+        total_apogee += compute_stage_apogee(mass, stage_impulses[stage_index] as f32)
     }
 
-    apogee
+    total_apogee
 }
 
 fn main() {
-    let mut best = vec![];
+    // best solutions found so far.
+    let mut best: Vec<(ScoringCriteria, f32)> = vec![];
+
+    // The mass of the current stage and all stages above it.
     let stage_masses = CONFIG.stages.stage_masses();
 
     // test every possible combination of staged impulse and golf balls.
-    for golf_balls in 0..CONFIG.max_golf_balls {
+    for golf_balls in CONFIG.min_golf_balls..CONFIG.max_golf_balls {
         let golf_ball_mass = golf_balls as f32 * CONFIG.golf_ball_mass_kg;
 
-        for stage_impulses in impulse_iterator::new(stage_masses.len(), CONFIG.max_impulse_ns) {
+        for stage_impulses in impulse_iterator::new(stage_masses.len(), CONFIG.max_total_impulse) {
             let setup = ScoringCriteria::new(
                 compute_multi_stage_apogee(&stage_masses, &stage_impulses, golf_ball_mass),
                 golf_balls,
@@ -70,18 +73,29 @@ fn main() {
 
             let score = setup.score();
 
-            if best.len() == CONFIG.max_tracked_solutions {
-                for best_score_index in 0..best.len() {
-                    if score > best[best_score_index].1 {
-                        best.insert(best_score_index, (setup, score))
-                    }
 
-                    // drop off the worst after replacement
-                    best.pop();
-                    break;
-                }
+            let needs_addition = if let Some((_, worst_saved)) = best.last() {
+                score > *worst_saved
             } else {
-                best.push((setup, score));
+                true
+            };
+
+
+            if needs_addition {
+                // Linear scan down the best options found so far, and replace the worst
+                if best.len() == CONFIG.max_tracked_solutions {
+                    for best_score_index in 0..best.len() {
+                        if score > best[best_score_index].1 {
+                            best.insert(best_score_index, (setup, score));
+
+                            // drop off the worst after replacement
+                            best.pop();
+                            break;
+                        }
+                    }
+                } else {
+                    best.push((setup, score))
+                }
             }
         }
         println!("Finished {} / {}", golf_balls + 1, CONFIG.max_golf_balls)

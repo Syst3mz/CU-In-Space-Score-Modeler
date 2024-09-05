@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use itertools::Itertools;
 use crate::CONFIG;
 
 #[derive(Debug, Clone)]
@@ -30,7 +31,17 @@ impl ScoringCriteria {
 
 impl Display for ScoringCriteria {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Apogee: {}, Golf Balls: {}, Impulse: {}",
-               self.apogee, self.golf_balls, self.stage_impulses.iter().sum::<u16>())
+        let impulse = if self.stage_impulses.len() == 1 {
+            format!("Impulse: {}", self.stage_impulses[0])
+        } else {
+            format!("{}, Total Impulse: {}",
+                self.stage_impulses.iter()
+                    .enumerate().map(|(stage_number, impulse)| format!("Stage #{} impulse {}ns", stage_number + 1, impulse))
+                    .join(", "),
+                self.stage_impulses.iter().sum::<u16>()
+            )
+        };
+        write!(f, "Apogee: {}, Golf Balls: {}, {}",
+               self.apogee, self.golf_balls, impulse)
     }
 }

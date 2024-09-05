@@ -56,8 +56,13 @@ pub struct Config {
     pub stages: Stages,
 
     #[serde(default)]
-    pub max_impulse_ns: u16,
+    pub min_stage_impulse: u16,
 
+    #[serde(default)]
+    pub max_total_impulse: u16,
+
+    #[serde(default)]
+    pub min_golf_balls: u16,
     #[serde(default)]
     pub max_golf_balls: u16,
 
@@ -75,9 +80,6 @@ pub struct Config {
     
     #[serde(default)]
     pub output_file: String,
-
-    #[serde(default)]
-    pub min_stage_impulse: u16
 }
 
 impl Default for Config {
@@ -85,7 +87,8 @@ impl Default for Config {
         Self {
             golf_ball_mass_kg: 0.04592623,
             stages: Stages::default(),
-            max_impulse_ns: 5120,
+            max_total_impulse: 5120,
+            min_golf_balls: 1,
             max_golf_balls: 1000,
             min_altitude_m: 2743.2,
             max_altitude_m: 12192.0,
