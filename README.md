@@ -2,8 +2,20 @@ A quick tool to optimize the score for CU in space's rocket. I make a number of 
 results are likely to be significantly off, but for a first pass I think these numbers are reasonable.
 
 # How to use:
-1. Grab a compiled binary (windows only for now) or build from source.
+1. Grab a compiled binary (windows only for now) or build from source. Let me know if other OS's are needed.
 2. Run the program.
+
+# Interpreting Results
+The program will output a list of criterion which looks like this:
+
+```
+#1: Apogee: 12191.535, Golf Balls: 13, Impulse: 292 @ 35524.625
+#2: Apogee: 12183.945, Golf Balls: 11, Impulse: 247 @ 35488.04
+#3: Apogee: 12155.773, Golf Balls: 14, Impulse: 314 @ 35398.785
+#4: Apogee: 12142.874, Golf Balls: 12, Impulse: 269 @ 35389.61
+```
+The number on the left, is which solution number it is. The middle is the particular solution that was found, and the 
+number following the `@` is the score based on the scoring function.
 
 # Configuration
 Configuration is handled through a file called config.json, which must be next to the program in the file system. 
