@@ -56,7 +56,7 @@ fn main() {
     let stage_masses = CONFIG.stages.stage_masses();
 
     // test every possible combination of staged impulse and golf balls.
-    for golf_balls in CONFIG.min_golf_balls..CONFIG.max_golf_balls {
+    for golf_balls in CONFIG.min_golf_balls..=CONFIG.max_golf_balls {
         let golf_ball_mass = golf_balls as f32 * CONFIG.golf_ball_mass_kg;
 
         for stage_impulses in impulse_iterator::new(stage_masses.len(), CONFIG.max_total_impulse) {
@@ -98,12 +98,12 @@ fn main() {
                 }
             }
         }
-        println!("Finished {} / {}", golf_balls + 1, CONFIG.max_golf_balls)
+        println!("Finished {} / {}", golf_balls, CONFIG.max_golf_balls)
     }
     let mut output = String::new();
 
     for (index, (setup, score)) in best.iter().enumerate() {
-        let text = format!("#{}: {} @ {}", index + 1, setup, score);
+        let text = format!("#{}: {} @ {}", index, setup, score);
         println!("{}", &text);
         output += &text;
         output += "\n"
