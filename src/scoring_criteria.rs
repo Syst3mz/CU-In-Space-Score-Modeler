@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use crate::config::Config;
+use crate::CONFIG;
 
 #[derive(Debug, Copy, Clone)]
 pub struct ScoringCriteria {
@@ -23,8 +23,8 @@ impl ScoringCriteria {
     }
 
     /// Decide if a given ScoringCriteria is a valid solution to be considered further.
-    pub fn invalid(&self, config: &Config) -> bool {
-        self.apogee < config.min_altitude_m || self.apogee > config.max_altitude_m
+    pub fn invalid(&self) -> bool {
+        self.apogee < CONFIG.min_altitude_m || self.apogee > CONFIG.max_altitude_m
     }
 }
 
